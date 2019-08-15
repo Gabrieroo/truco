@@ -107,7 +107,7 @@ auto render_line(int x1, int y1, int x2, int y2) -> void
   SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
 }
 
-auto clear_screen(int r, int g, int b) -> void
+auto paint_screen(int r = 0, int g = 0, int b = 0) -> void
 {
   SDL_RenderClear(renderer);
   set_color(r, g, b);

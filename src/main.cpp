@@ -10,5 +10,12 @@ auto main() -> int
 
   while (true)
   {
+    sdl::start_frame();
+
+    sdl::paint_screen();
+
+    sdl::handle_events();
+
+    sdl::end_frame();
   }
 }
