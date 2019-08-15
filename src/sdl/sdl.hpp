@@ -2,11 +2,8 @@
 
 #define SDL_MAIN_HANDLED
 
-#ifdef WIN32
-#include "../../include/windows/sdl2/SDL.h"
-#else
-#include "../../include/linux/sdl2/SDL.h"
-#endif
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include <utility>
 #include <cstdlib>
@@ -15,8 +12,8 @@ namespace sdl
 {
 namespace
 {
-static constexpr unsigned int FPS = 60;
-static constexpr unsigned int frame_delay = 1000 / FPS;
+static constexpr Uint8 FPS = 60;
+static constexpr Uint8 frame_delay = 1000 / FPS;
 
 static Uint32 frame_time;
 static Uint32 frame_start;
@@ -32,7 +29,7 @@ static SDL_Window *window;
 static SDL_Renderer *renderer;
 
 } // namespace
-auto create_window(int width, int height, bool fullscreen = false) -> void
+static auto createWindow(int width, int height, bool fullscreen = false) -> void
 {
   WINDOW_WIDTH = width;
   WINDOW_HEIGHT = height;
@@ -43,16 +40,37 @@ auto create_window(int width, int height, bool fullscreen = false) -> void
 
   SDL_Init(SDL_INIT_EVERYTHING);
 
+  IMG_Init(IMG_INIT_JPG |
+           IMG_INIT_PNG |
+           IMG_INIT_TIF);
+
   SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, flags, &window, &renderer);
   SDL_SetRenderDrawColor(renderer, 0xff, 0xb4, 0xff, 0xff);
 }
 
-auto sleep(size_t ms) -> void
+static auto loadTexture(const char *file) -> SDL_Texture *
+{
+  SDL_Surface *tempImage = IMG_Load(file);
+  SDL_Surface *optimizedImage = SDL_ConvertSurface(tempImage, tempImage->format, 0);
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, optimizedImage);
+
+  SDL_FreeSurface(tempImage);
+  SDL_FreeSurface(optimizedImage);
+
+  return texture;
+}
+
+static auto texture(SDL_Texture *texture, SDL_Rect *source, SDL_Rect *destination, double angle = 0.0, SDL_RendererFlip &&flip = SDL_FLIP_NONE) -> void
+{
+  SDL_RenderCopyEx(renderer, texture, source, destination, angle, nullptr, std::forward<decltype(flip)>(flip));
+}
+
+static auto sleep(size_t ms) -> void
 {
   SDL_Delay(ms);
 }
 
-auto quit() -> void
+static auto quit() -> void
 {
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
@@ -60,7 +78,7 @@ auto quit() -> void
   std::exit(EXIT_SUCCESS);
 }
 
-auto handle_events() -> void
+static auto events() -> void
 {
   SDL_PollEvent(&event_handler);
 
@@ -72,7 +90,7 @@ auto handle_events() -> void
   }
 }
 
-auto set_color(int r, int g, int b, int a = 0) -> void
+static auto setColor(int r, int g, int b, int a = 0) -> void
 {
   SDL_SetRenderDrawColor(renderer, r, g, b, a);
 }
@@ -86,7 +104,7 @@ std::pair<int, int> get_mouse_position()
   return std::make_pair(x_pos, y_pos);
 }
 
-auto render_rectangle(float x, float y, int width, int height) -> void
+static auto rectangle(float x, float y, int width, int height) -> void
 {
   SDL_Rect rectangle;
   rectangle.x = x;
@@ -97,37 +115,37 @@ auto render_rectangle(float x, float y, int width, int height) -> void
   SDL_RenderFillRect(renderer, &rectangle);
 }
 
-auto render_point(int x, int y) -> void
+static auto point(int x, int y) -> void
 {
   SDL_RenderDrawPoint(renderer, x, y);
 }
 
-auto render_line(int x1, int y1, int x2, int y2) -> void
+static auto line(int x1, int y1, int x2, int y2) -> void
 {
   SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
 }
 
-auto paint_screen(int r = 0, int g = 0, int b = 0) -> void
+static auto paintScreen(int r = 0, int g = 0, int b = 0) -> void
 {
   SDL_RenderClear(renderer);
-  set_color(r, g, b);
-  render_rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+  setColor(r, g, b);
+  rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
-auto update_screen() -> void
+static auto update() -> void
 {
   SDL_RenderPresent(renderer);
 }
 
-auto start_frame() -> void
+static auto startFrame() -> void
 {
   SDL_PumpEvents();
   frame_start = SDL_GetTicks();
 }
 
-auto end_frame() -> void
+static auto endFrame() -> void
 {
-  update_screen();
+  update();
   frame_time = SDL_GetTicks() - frame_start;
   if (frame_delay > frame_time)
   {

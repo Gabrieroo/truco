@@ -6,16 +6,16 @@ auto print = [](auto &&... args) -> void { (std::cout << ... << args) << '\n'; }
 
 auto main() -> int
 {
-  sdl::create_window(800, 600);
+  sdl::createWindow(800, 600);
 
   while (true)
   {
-    sdl::start_frame();
+    sdl::startFrame();
 
-    sdl::paint_screen();
+    sdl::paintScreen();
 
-    sdl::handle_events();
+    sdl::events();
 
-    sdl::end_frame();
+    sdl::endFrame();
   }
 }
