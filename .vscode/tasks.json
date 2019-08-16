@@ -2,15 +2,6 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build C++ project",
-      "type": "shell",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "command": "make"
-    },
-    {
       "label": "Build & run C++ project",
       "type": "shell",
       "group": {
@@ -18,7 +9,7 @@
         "isDefault": true
       },
       "problemMatcher": "$gcc",
-      "command": "g++ -std=c++1z -ggdb -Wall -Wextra -Wpedantic ./src/*.cpp -o bin/main `sdl2-config --cflags --libs` -lSDL2 -lSDL2_mixer -lSDL2_image -lSDL2_ttf && ./bin/main"
+      "command": "g++ -std=c++1z -ggdb -Wall -Wextra -Wpedantic ./src/*.cpp  -o bin/main `sdl2-config --cflags --libs` -lSDL2 -lSDL2_mixer -lSDL2_image -lSDL2_ttf && ./bin/main"
     }
   ]
 }
